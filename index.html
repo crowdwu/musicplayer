@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>musicPlayer</title>
+   
+    <link rel="stylesheet" href="http://at.alicdn.com/t/font_1181510_tveemgc4fo.css">
+
+    <style>
+      .musicbox {
+        position: absolute;
+        left: 50%;
+        top: 40%;
+        transform: translate(-50%, -50%);
+        font-family: cursive;
+        font-size: 16px;
+        border: 1px solid grey;
+        width: 340px;
+        padding: 20px 20px 5px 20px;
+        box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.4)
+      }
+       
+      .musicbox .control {
+        margin-top: 20px;
+        font-size: 25px;
+        float: left;
+      }
+      
+      .musicbox .control .fa {
+        margin-right: 12px
+        
+      }
+      
+      .musicbox .info {
+        margin-left: 150px;
+      }
+      .musicbox .info .auther {
+        font-size: 12px;
+        
+        opacity: 0.3;
+      }
+      .musicbox .progress {
+        width: 260px;
+      }
+      .musicbox .progress .bar {
+        height: 3px;
+        margin-top: 18px;
+        background-color: rgba(0,0,0,0.2);
+      }
+      .musicbox .progress .progress-now {
+        background-color: red;
+        height: 3px;
+        width: 0;
+        position:relative;
+      }
+      
+      .musicbox .time {
+        text-align: right;
+      }
+       .musicbox:after,
+      .musicbox .music:after {
+        content: '';
+        display: block;
+         clear: both;
+      }
+      
+    </style>
+</head>
+<body>
+    <div class="cover"></div>
+    <div class="musicbox">
+        <div class="music">
+            <div class="control">
+                <span class="back"><i class="iconfont icon-backward"></i></span>
+                <span class="play"><i class="iconfont icon-pausecircle"></i></span>
+                <span class="forward"><i class="iconfont icon-forward2"></i></span>
+            </div>
+            <div class="info">
+              <div class="title">My song</div>
+              <div class="auther">dust</div>
+            </div>
+            <div class="progress">
+                <div class="bar">
+                    <div class="progress-total"></div>
+                    <div class="progress-now"></div>
+                </div>
+                <div class="time">0:00</div>
+            </div>
+        </div>
+    </div>
+  
+    <script>
+        var musicList = [
+            {
+                src: 'http://cloud.hunger-valley.com/music/玫瑰.mp3',
+                title: '玫瑰',
+                auther: '贰佰',
+                img: 'https://upload-images.jianshu.io/upload_images/3624093-d9678a0d2a897390.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240'
+            },
+            {
+                src: 'http://cloud.hunger-valley.com/music/ifyou.mp3',
+                title: 'IF YOU',
+                auther: 'Big Bang',
+                img: 'https://upload-images.jianshu.io/upload_images/3624093-84598b108b24d414.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240'
+            }
+    
+        ]
+      var cover = document.querySelector('.cover')
+      var backBtn = document.querySelector('.musicbox .back')
+      var playBtn = document.querySelector('.musicbox .play')
+      var forwardBtn = document.querySelector('.musicbox .forward')
+      var titleNode = document.querySelector('.musicbox .title')
+      var autherNode = document.querySelector('.musicbox .auther ')
+      var timeNode = document.querySelector('.musicbox .time')
+      var progressBarNode = document.querySelector('.musicbox .progress .bar')
+      var progressNowNode = document.querySelector('.musicbox .progress-now')
+      var timer
+
+      var music = new Audio()
+      music.autoplay = true
+      var musicIndex = 0
+
+      loadMusic(musicList[musicIndex])
+
+      playBtn.onclick = function() {
+          var icon = this.querySelector('.iconfont')
+          if(icon.classList.contains('icon-pausecircle')){
+              music.pause()
+          }else {
+              music.play()
+          }
+          icon.classList.toggle('icon-pausecircle')
+          icon.classList.toggle('icon-play')   //toggle() 方法用于绑定两个或多个事件处理器函数，以响应被选元素的轮流的 click 事件。
+
+      }
+      
+      forwardBtn.onclick = loadNextMusic
+      backBtn.onclick = loadLastMusic
+      music.onended = loadNextMusic
+      music.shouldUpdate = true
+
+      function loadMusic(songObj){
+          music.src = songObj.src
+          titleNode.innerText = songObj.title
+          autherNode.innerText = songObj.auther
+          cover.style.backgroundImage = 'url(' + songObj.img + ')'
+      }
+
+      function loadNextMusic(){
+          musicIndex++
+          musicindex = musicIndex%musicList.length
+          loadMusic(musicList[musicIndex])
+
+      }
+      function loadLastMusic(){
+          musicIndex--
+          musicIndex = (musicIndex + musicList.length)%musicList.length
+          loadMusic(musicList[musicIndex])
+      }
+
+
+      music.onplaying = function(){
+          timer = setInterval(function(){
+            updateProgress()
+     }, 1000)
+          console.log('play')
+     }
+         music.onpause = function(){
+         console.log('pause')
+         clearInterval(timer)
+     }
+      progressBarNode.onclick = function(e){
+          var percent = e.offsetX/parseInt(getComputedStyle(this).width)
+          music.currentTime = percent * musci.duration
+          progressNowNode.style.width = percent * 100 + "%"
+      }
+
+      function updateProgress(){
+          var percent = (music.currentTime/music.duration)*100+"%"
+          progressNowNode.style.width = percent
+          var minutes = parseInt(music.currentTime/60)
+          var seconds = parseInt(music.currentTime%60)+''
+          seconds = seconds.length == 2?seconds:'0'+seconds
+          timeNode.innerText = minutes+':'+seconds
+      }
+      
+    </script>
+</body>
+</html>
